@@ -1,0 +1,16 @@
+.vercel
+.env
+.env.local
+.env.*.local
+node_modules
+dist
+.DS_Store
+
+# Claude Code / agents tooling
+.agents/
+.claude/
+skills-lock.json
+
+# IDE / editor settings (contains user-specific tokens)
+.vscode/
+.idea/

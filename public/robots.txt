@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Block Vercel preview deployments from being indexed via the production sitemap.
+# Vercel auto-injects X-Robots-Tag: noindex on *.vercel.app preview URLs, so this
+# block here is just belt-and-suspenders for the production domain.
+
+Sitemap: https://thebenypodcastshow.com/sitemap.xml
