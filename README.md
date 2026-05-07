@@ -1,86 +1,85 @@
 # The Beny Podcast Show — Landing Page
 
-Site institucional e de captação de inscrições para o podcast **The Beny Podcast Show**. Página única, estática, servida com um pequeno servidor Express que expõe o endpoint de inscrição na newsletter integrado ao Mailchimp.
+Marketing site and newsletter signup for **The Beny Podcast Show**. Single static page served by a small Express server that exposes a Mailchimp-backed subscribe endpoint.
 
 ## Stack
 
-- **Frontend**: HTML + CSS inline + TypeScript (sem framework de UI). Build via Vite.
-- **Backend**: Express 5 (Node 22+) com endpoint `/api/subscribe` que chama a Mailchimp Marketing API v3.
-- **Hospedagem suportada**:
-  - **DigitalOcean Droplet** (produção principal — Nginx + PM2 + Node).
-  - **Vercel** (paridade total — usa `api/subscribe.ts` como serverless function).
-- **YouTube**: hidratação client-side de stats e último episódio via YouTube Data API v3.
-- **Mailchimp**: Marketing API v3 (server-side) com merge field customizado.
+- **Frontend**: HTML + inline CSS + TypeScript (no UI framework). Built with Vite.
+- **Backend**: Express 5 on Node 22+ exposing `POST /api/subscribe`, which calls the Mailchimp Marketing API v3.
+- **Hosting supported**:
+  - **DigitalOcean Droplet** (primary production — Nginx + PM2 + Node).
+  - **Vercel** (full parity — uses `api/subscribe.ts` as a serverless function).
+- **YouTube**: client-side hydration of channel stats and the latest episode via the YouTube Data API v3.
+- **Mailchimp**: server-side Marketing API v3 with a custom merge field (`MMERGE7` / "Topic suggestion").
 
-## Estrutura
+## Project structure
 
 ```
 .
 ├── api/
 │   └── subscribe.ts          ← Vercel function (Mailchimp API v3)
 ├── server/
-│   └── index.ts              ← Express server p/ DO Droplet (mesma lógica)
+│   └── index.ts              ← Express server for DO Droplet (same logic)
 ├── src/
 │   ├── lib/
 │   │   ├── youtube.ts        ← YouTube Data API client
-│   │   ├── mailchimp.ts      ← Wrapper que faz POST p/ /api/subscribe
-│   │   ├── testimonials.ts   ← Dados estáticos de reviews
-│   │   ├── brandPitch.ts     ← Lógica do form de brand-pitch
-│   │   ├── mailchimp.ts      ← Cliente do endpoint de inscrição
+│   │   ├── mailchimp.ts      ← Wrapper that POSTs to /api/subscribe
+│   │   ├── testimonials.ts   ← Static review data
+│   │   ├── brandPitch.ts     ← Brand-pitch form logic
 │   │   └── links.ts
 │   └── scripts/
-│       ├── main.ts           ← Entry point (hidratação, listeners)
+│       ├── main.ts           ← Entry point (hydration, listeners)
 │       └── brand-pitch.ts
-├── public/                   ← Imagens estáticas (avif/jpg/png/svg)
-├── dist/                     ← Output do `npm run build` (gitignored)
-├── index.html                ← Single-page com CSS/HTML inline
+├── public/                   ← Static images (avif/jpg/png/svg)
+├── dist/                     ← Output of `npm run build` (gitignored)
+├── index.html                ← Single page with inline CSS/HTML
 ├── package.json
-└── .env.example              ← Template de variáveis (NÃO commitar .env real)
+└── .env.example              ← Variables template (do NOT commit the real .env)
 ```
 
-## Variáveis de ambiente
+## Environment variables
 
-Crie um `.env` na raiz baseado em `.env.example`. Variáveis com prefixo `VITE_` são embutidas no bundle do navegador (públicas); as demais são **servidor-only**.
+Create a `.env` at the project root based on `.env.example`. Variables prefixed with `VITE_` are inlined into the browser bundle (public); the others are **server-only**.
 
-### Públicas (frontend)
+### Public (frontend)
 
-| Var | Descrição |
+| Var | Description |
 |---|---|
-| `VITE_YT_API_KEY` | Chave da YouTube Data API v3 (somente-leitura) |
-| `VITE_YT_CHANNEL_ID` | ID do canal do YouTube |
-| `VITE_BRAND_PITCH_URL` | URL do Formspree para envio do form de parcerias |
+| `VITE_YT_API_KEY` | YouTube Data API v3 key (read-only) |
+| `VITE_YT_CHANNEL_ID` | YouTube channel ID |
+| `VITE_BRAND_PITCH_URL` | Formspree URL for the brand-partnership form |
 
-### Privadas (servidor — Vercel ou Droplet)
+### Private (server — Vercel or Droplet)
 
-| Var | Descrição |
+| Var | Description |
 |---|---|
-| `MAILCHIMP_API_KEY` | API key do Mailchimp (formato `xxxxxxx-us14`) |
-| `MAILCHIMP_LIST_ID` | Audience ID (10 chars hex) |
-| `MAILCHIMP_DC` | Data center, sufixo da API key (ex: `us14`) |
-| `PORT` | Porta do Express (Droplet). Default `3000` |
-| `HOST` | Bind address do Express. Default `127.0.0.1` |
+| `MAILCHIMP_API_KEY` | Mailchimp API key (format: `xxxxxxx-us14`) |
+| `MAILCHIMP_LIST_ID` | Audience ID (10 hex chars) |
+| `MAILCHIMP_DC` | Data center suffix from the API key (e.g. `us14`) |
+| `PORT` | Express port (Droplet only). Default `3000` |
+| `HOST` | Express bind address. Default `127.0.0.1` |
 
-> **Nunca commite o `.env`.** Já está no `.gitignore`.
+> **Never commit `.env`.** It is already in `.gitignore`.
 
-## Configuração no Mailchimp (uma vez)
+## One-time Mailchimp configuration
 
-A inscrição envia 3 campos: `FNAME` (First Name), `email_address`, e `MMERGE7` (Topic suggestion).
+The subscribe endpoint sends three fields: `FNAME` (first name), `email_address`, and `MMERGE7` (Topic suggestion).
 
-Para o merge field `MMERGE7` funcionar:
+For `MMERGE7` to be accepted:
 
-1. Mailchimp → **Audience → "..." → Audience settings → Audience fields and merge tags**
-2. Clique em **"Create a new field"**
-3. Configure: **Field name**: `Topic suggestion`, **Data type**: `Text`, **Required**: desmarcado
-4. Salve. Mailchimp atribui automaticamente o tag `*|MMERGE7|*`
-5. **Importante:** vá em `https://us14.admin.mailchimp.com/lists/designer/` (Form Designer) e arraste o campo `Topic suggestion` pra dentro do formulário. Sem isso, o JSONP-ish do Mailchimp ignora o valor (a API v3 funciona, mas é boa prática manter consistente).
+1. Open Mailchimp → **Audience → "..." → Audience settings → Audience fields and merge tags**
+2. Click **"Create a new field"**
+3. Configure: **Field name** = `Topic suggestion`, **Data type** = `Text`, **Required** = unchecked
+4. Save. Mailchimp auto-assigns the merge tag `*|MMERGE7|*`
+5. **Important:** open `https://us14.admin.mailchimp.com/lists/designer/` (Form Designer) and drag `Topic suggestion` into the form. The Marketing API v3 does not strictly require this, but keeping the form in sync avoids confusion in case the integration ever falls back to the hosted-form endpoint.
 
-> Se a numeração `MMERGE7` mudar (porque foi criado outro campo antes), atualize a referência em **`api/subscribe.ts`** e **`server/index.ts`** (procure por `MMERGE7`).
+> If the field number ends up as something other than `MMERGE7` (e.g., a different field was created earlier), update the constant in **`api/subscribe.ts`** and **`server/index.ts`** (search for `MMERGE7`).
 
-## Desenvolvimento local
+## Local development
 
-### Pré-requisitos
+### Prerequisites
 
-- Node.js **22 ou superior** (`node -v`)
+- Node.js **22 or later** (`node -v`)
 - npm 10+
 
 ### Setup
@@ -90,20 +89,20 @@ git clone <repo-url> beny-podcast-lp
 cd beny-podcast-lp
 npm install
 cp .env.example .env
-# preencha .env com seus valores reais
+# fill .env with real values
 ```
 
-### Rodar em dev (só frontend, hot reload)
+### Run in dev (frontend only, hot reload)
 
 ```bash
 npm run dev
 ```
 
-Vite sobe em `http://localhost:5173`. Útil pra editar HTML/CSS/JS — não roda o endpoint `/api/subscribe`. Se precisar testar a inscrição local, rode o servidor Express:
+Vite serves on `http://localhost:5173`. Useful for editing HTML/CSS/JS — does **not** run `/api/subscribe`. To test the subscribe endpoint locally, run the Express server instead:
 
 ```bash
-npm run build       # gera dist/
-npm start           # sobe Express em http://127.0.0.1:3000 servindo dist/ + /api/subscribe
+npm run build       # produces dist/
+npm start           # serves dist/ + /api/subscribe on http://127.0.0.1:3000
 ```
 
 ### Lint
@@ -112,31 +111,31 @@ npm start           # sobe Express em http://127.0.0.1:3000 servindo dist/ + /ap
 npm run lint
 ```
 
-## Build de produção
+## Production build
 
 ```bash
 npm run build
 ```
 
-Output em `dist/`:
-- `dist/index.html` (~106 KB com CSS inline)
-- `dist/assets/index-*.js` (bundle do `src/scripts/main.ts`)
-- Imagens copiadas de `public/`
+Output in `dist/`:
+- `dist/index.html` (~106 KB with inlined CSS)
+- `dist/assets/index-*.js` (bundle of `src/scripts/main.ts`)
+- Images copied from `public/`
 
-## Deploy
+## Deployment
 
-### Opção 1 — DigitalOcean Droplet (produção principal)
+### Option 1 — DigitalOcean Droplet (primary production)
 
-#### Preparar servidor (uma vez)
+#### Server prep (one-time)
 
 ```bash
-# Como root ou com sudo
+# As root or with sudo
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs git nginx
 sudo npm install -g pm2
 ```
 
-#### Clonar e buildar
+#### Clone and build
 
 ```bash
 sudo mkdir -p /var/www/beny-podcast
@@ -147,7 +146,7 @@ npm ci
 npm run build
 ```
 
-#### Configurar `.env`
+#### Configure `.env`
 
 ```bash
 cat > /var/www/beny-podcast/.env <<'EOF'
@@ -163,27 +162,27 @@ EOF
 chmod 600 .env
 ```
 
-> `HOST=127.0.0.1` faz o Node escutar só em loopback; Nginx é o único ponto de entrada externo.
+> `HOST=127.0.0.1` keeps Node bound to loopback only; Nginx is the single external entry point.
 
-#### Subir com PM2
+#### Start with PM2
 
 ```bash
 cd /var/www/beny-podcast
 pm2 start npm --name "beny-podcast" -- start
 pm2 save
 pm2 startup systemd
-# cole/execute o comando que ele imprimir → faz sobreviver a reboots
+# paste/run the command it prints → makes it survive reboots
 ```
 
-Comandos úteis:
-- `pm2 logs beny-podcast` — logs em tempo real
-- `pm2 restart beny-podcast` — restart com downtime curto
+Useful commands:
+- `pm2 logs beny-podcast` — tail logs
+- `pm2 restart beny-podcast` — restart with brief downtime
 - `pm2 reload beny-podcast` — zero-downtime reload
-- `pm2 status` — status geral
+- `pm2 status` — overall status
 
-#### Configurar Nginx
+#### Nginx config
 
-Crie `/etc/nginx/sites-available/beny-podcast`:
+Create `/etc/nginx/sites-available/beny-podcast`:
 
 ```nginx
 server {
@@ -216,7 +215,7 @@ server {
 }
 ```
 
-Ativar:
+Enable:
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/beny-podcast /etc/nginx/sites-enabled/
@@ -230,21 +229,21 @@ sudo apt-get install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d thebenypodcastshow.com -d www.thebenypodcastshow.com
 ```
 
-Renovação é automática via timer do systemd.
+Auto-renewal is set up via a systemd timer.
 
-#### Workflow de release
+#### Release workflow
 
 ```bash
 cd /var/www/beny-podcast
 git pull
-npm ci             # só se package.json mudou
+npm ci             # only if package.json changed
 npm run build
 pm2 reload beny-podcast
 ```
 
-### Opção 2 — Vercel
+### Option 2 — Vercel
 
-Projeto já linkado (`.vercel/project.json`).
+The project is already linked (`.vercel/project.json`).
 
 Deploy:
 
@@ -252,7 +251,7 @@ Deploy:
 npx vercel deploy --prod --yes
 ```
 
-Variáveis de ambiente:
+Environment variables:
 
 ```bash
 npx vercel env add MAILCHIMP_API_KEY production
@@ -260,33 +259,33 @@ npx vercel env add MAILCHIMP_LIST_ID production
 npx vercel env add MAILCHIMP_DC production
 ```
 
-A Vercel usa `api/subscribe.ts` automaticamente como serverless function (mesma lógica do Express, só com adapter diferente).
+Vercel automatically picks up `api/subscribe.ts` as a serverless function (same logic as the Express server, only the adapter differs).
 
 ## Endpoints
 
 ### `POST /api/subscribe`
 
-Aceita JSON e retorna JSON.
+Accepts JSON, returns JSON.
 
 **Request:**
 ```json
 {
   "name": "Carlos",
   "email": "carlos@example.com",
-  "topic": "Como começar a investir em 2026"
+  "topic": "How to start investing in 2026"
 }
 ```
 
 **Responses:**
-- `200 { "ok": true, "message": "Welcome, Carlos! Check your inbox." }` — inscrito
-- `200 { "ok": true, "message": "You are already subscribed." }` — já existia
-- `400 { "ok": false, "message": "..." }` — input inválido (nome curto, email inválido)
-- `500 { "ok": false, "message": "Newsletter is not configured." }` — env vars faltando
-- `502 { "ok": false, "message": "Network error. Please try again." }` — falha de rede
+- `200 { "ok": true, "message": "Welcome, Carlos! Check your inbox." }` — subscribed
+- `200 { "ok": true, "message": "You are already subscribed." }` — already in the list
+- `400 { "ok": false, "message": "..." }` — invalid input (short name, bad email)
+- `500 { "ok": false, "message": "Newsletter is not configured." }` — missing env vars
+- `502 { "ok": false, "message": "Network error. Please try again." }` — network failure
 
 ### `GET /healthz`
 
-Health check pra liveness/readiness probes.
+Health check for liveness/readiness probes.
 ```json
 { "ok": true }
 ```
@@ -294,34 +293,34 @@ Health check pra liveness/readiness probes.
 ## Troubleshooting
 
 ### `Newsletter is not configured.`
-Falta uma das três env vars (`MAILCHIMP_API_KEY`, `MAILCHIMP_LIST_ID`, `MAILCHIMP_DC`). Confira `.env` no Droplet ou env vars na Vercel.
+One of the three env vars is missing (`MAILCHIMP_API_KEY`, `MAILCHIMP_LIST_ID`, `MAILCHIMP_DC`). Check `.env` on the Droplet or environment variables on Vercel.
 
-### Topic suggestion chegando vazio no Mailchimp
-- Verifique que o merge field existe na audience com tag `MMERGE7` (ou ajuste `api/subscribe.ts` e `server/index.ts` se a tag for outra)
-- Confirme que o campo está adicionado ao Form Builder
+### Topic suggestion arriving empty in Mailchimp
+- Verify the merge field exists in the audience with tag `MMERGE7` (or update `api/subscribe.ts` and `server/index.ts` if the tag is different)
+- Confirm the field is added to the Form Builder
 
-### Express não inicia (PM2 mostra erro)
-- `pm2 logs beny-podcast --err --lines 100` mostra stack trace
-- Confira se `dist/` existe (rodar `npm run build` antes do `pm2 start`)
-- Confira se `.env` está no diretório onde o pm2 rodou o start
+### Express won't start (PM2 shows error)
+- `pm2 logs beny-podcast --err --lines 100` shows the stack trace
+- Confirm `dist/` exists (run `npm run build` before `pm2 start`)
+- Confirm `.env` is in the directory where pm2 ran the start command
 
 ### Nginx 502 Bad Gateway
-- Node não está rodando: `pm2 status`
-- Porta errada: confira `PORT` no `.env` vs `proxy_pass` no Nginx
-- Bind errado: `HOST=127.0.0.1` no `.env` (não use `0.0.0.0` se Nginx é o gateway)
+- Node isn't running: `pm2 status`
+- Wrong port: check `PORT` in `.env` against `proxy_pass` in Nginx
+- Wrong bind: keep `HOST=127.0.0.1` (do not use `0.0.0.0` if Nginx is the gateway)
 
-### YouTube stats não atualizam
-- Confira `VITE_YT_API_KEY` no `.env` e rebuilde
-- DevTools → Console → procure por warnings de `[hydrate]`
-- Verifique cota da API no Google Cloud Console
+### YouTube stats don't update
+- Check `VITE_YT_API_KEY` in `.env` and rebuild
+- DevTools → Console → look for `[hydrate]` warnings
+- Verify API quota in the Google Cloud Console
 
-## Pontos de atenção pra futuras manutenções
+## Maintenance notes
 
-- O `index.html` tem CSS embutido (~3000+ linhas). Mudanças visuais grandes podem ser dolorosas de revisar — considere extrair para arquivos separados se o projeto crescer.
-- O `package.json` ainda tem dependências React não usadas (resíduo do scaffold inicial). Podem ser removidas com cuidado.
-- Mudou o nome do merge field no Mailchimp? Atualize **as duas** ocorrências de `MMERGE7` em `api/subscribe.ts` e `server/index.ts`.
-- Variáveis `VITE_*` ficam **embutidas no bundle público**. Nunca coloque secrets ali.
+- `index.html` ships with inline CSS (~3000+ lines). Large visual changes can be painful to review — consider extracting CSS into separate files if the project grows.
+- `package.json` still carries unused React dependencies (leftover from initial scaffolding). They can be removed carefully.
+- If the Mailchimp merge field tag changes, update **both** occurrences of `MMERGE7` in `api/subscribe.ts` and `server/index.ts`.
+- `VITE_*` variables are **inlined into the public bundle**. Never put secrets there.
 
-## Licença
+## License
 
-Privado. Todos os direitos reservados a The Beny Podcast Show.
+Private. All rights reserved by The Beny Podcast Show.
