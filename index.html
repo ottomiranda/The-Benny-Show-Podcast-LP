@@ -1174,6 +1174,11 @@
       width: 100%;
       border-radius: 2rem;
       box-shadow: var(--shadow-card);
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .about-image:hover .about-image-main {
+      transform: scale(1.025);
     }
 
     .about-image-accent {
@@ -1242,6 +1247,137 @@
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-top: 0.5rem;
+    }
+
+    /* ===== TEAM - Behind The Mic ===== */
+    .team-section {
+      padding: 0 4vw 8rem;
+      background: var(--bg-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .team-section::before {
+      content: "";
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(255, 45, 143, 0.10) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .team-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .team-image {
+      position: relative;
+    }
+
+    .team-image-main {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 2rem;
+      box-shadow: var(--shadow-card);
+      filter: saturate(1.05) contrast(1.02);
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .team-image:hover .team-image-main {
+      transform: scale(1.025);
+    }
+
+    .team-image-accent {
+      position: absolute;
+      bottom: -2rem;
+      right: -2rem;
+      width: 200px;
+      height: 200px;
+      background: var(--gradient-1);
+      border-radius: 2rem;
+      opacity: 0.3;
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .team-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding: 2rem 0;
+    }
+
+    .team-title {
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .team-title span {
+      color: var(--accent);
+    }
+
+    .team-text {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      line-height: 1.9;
+      max-width: 52ch;
+      margin: 0;
+    }
+
+    .team-tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border: 1px solid rgba(255, 45, 143, 0.25);
+      border-radius: 999px;
+      background: rgba(255, 45, 143, 0.05);
+      align-self: flex-start;
+    }
+
+    .team-tagline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent-light);
+      animation: teamDotPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes teamDotPulse {
+      0%, 100% { transform: scale(1);    opacity: 1; }
+      50%      { transform: scale(1.35); opacity: 0.7; }
+    }
+
+    .team-tagline-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-primary);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .team-tagline-dot { animation: none; }
+      .team-image-main,
+      .about-image-main { transition: none; }
     }
 
     /* ===== TOPICS - Interactive Grid ===== */
@@ -2507,24 +2643,6 @@
       margin: 0;
     }
 
-    .footer-legal {
-      color: var(--text-muted);
-      font-size: 0.875rem;
-      text-align: center;
-      margin: 0;
-    }
-
-    .footer-legal a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.875rem;
-      transition: color 0.3s ease;
-    }
-
-    .footer-legal a:hover {
-      color: var(--text-primary);
-    }
-
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
       .episode-card {
@@ -2536,6 +2654,11 @@
       }
 
       .about-container {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+
+      .team-container {
         grid-template-columns: 1fr;
         gap: 3rem;
       }
@@ -2587,6 +2710,18 @@
 
       .about-credentials {
         grid-template-columns: 1fr;
+      }
+
+      .team-section {
+        padding: 0 4vw 5rem;
+      }
+
+      .team-content {
+        padding: 0;
+      }
+
+      .team-image {
+        order: -1;
       }
 
       .newsletter-form {
@@ -2794,6 +2929,29 @@
     </div>
   </section>
 
+  <!-- Team Section -->
+  <section class="team-section" id="team">
+    <div class="team-container">
+      <div class="team-content slide-in-left">
+        <span class="section-label">At The Table</span>
+        <h2 class="team-title">More Voices.<br><span>More Truth.</span></h2>
+        <p class="team-text">Every episode is a conversation, not a monologue. Meet the regulars who sit at the table with Beny week after week—trading takes, pushing back, and shaping every truth bomb in real time.</p>
+        <div class="team-tagline">
+          <span class="team-tagline-dot"></span>
+          <span class="team-tagline-text">More voices. Zero filter.</span>
+        </div>
+      </div>
+      <div class="team-image slide-in-right">
+        <img src="/theteamben.jpeg"
+             alt="The Beny Podcast Show team — Beny and crew in front of the studio's neon sign"
+             class="team-image-main"
+             loading="lazy"
+             decoding="async">
+        <div class="team-image-accent"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- Topics Section -->
   <section class="topics-section" id="topics">
     <div class="section-header fade-in">
@@ -2801,7 +2959,7 @@
       <h2 class="section-title">Pick Your Topic</h2>
     </div>
     <div class="topics-grid">
-      <a class="topic-card fade-in" href="https://www.youtube.com/@theBenyPodcastShow/search?query=Business+%26+Money" target="_blank" rel="noopener noreferrer" data-yt-topic="business">
+      <a class="topic-card fade-in" href="https://www.youtube.com/results?search_query=%22The+Beny+Podcast+Show%22+Business+%26+Money" target="_blank" rel="noopener noreferrer" data-yt-topic="business">
         <div class="topic-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
         </div>
@@ -2810,7 +2968,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
-      <a class="topic-card fade-in" href="https://www.youtube.com/@theBenyPodcastShow/search?query=Beauty+%26+Aesthetics" target="_blank" rel="noopener noreferrer" data-yt-topic="beauty">
+      <a class="topic-card fade-in" href="https://www.youtube.com/results?search_query=%22The+Beny+Podcast+Show%22+Beauty+%26+Aesthetics" target="_blank" rel="noopener noreferrer" data-yt-topic="beauty">
         <div class="topic-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
         </div>
@@ -2819,7 +2977,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
-      <a class="topic-card fade-in" href="https://www.youtube.com/@theBenyPodcastShow/search?query=Spirituality+%26+Mindset" target="_blank" rel="noopener noreferrer" data-yt-topic="spirituality">
+      <a class="topic-card fade-in" href="https://www.youtube.com/results?search_query=%22The+Beny+Podcast+Show%22+Spirituality+%26+Mindset" target="_blank" rel="noopener noreferrer" data-yt-topic="spirituality">
         <div class="topic-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
         </div>
@@ -2828,7 +2986,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
-      <a class="topic-card fade-in" href="https://www.youtube.com/@theBenyPodcastShow/search?query=AI+%26+The+Future" target="_blank" rel="noopener noreferrer" data-yt-topic="ai">
+      <a class="topic-card fade-in" href="https://www.youtube.com/results?search_query=%22The+Beny+Podcast+Show%22+AI+%26+The+Future" target="_blank" rel="noopener noreferrer" data-yt-topic="ai">
         <div class="topic-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
         </div>
@@ -2837,7 +2995,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
-      <a class="topic-card fade-in" href="https://www.youtube.com/@theBenyPodcastShow/search?query=Relationships" target="_blank" rel="noopener noreferrer" data-yt-topic="relationships">
+      <a class="topic-card fade-in" href="https://www.youtube.com/results?search_query=%22The+Beny+Podcast+Show%22+Relationships" target="_blank" rel="noopener noreferrer" data-yt-topic="relationships">
         <div class="topic-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
         </div>
@@ -2846,7 +3004,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
-      <a class="topic-card fade-in" href="https://www.youtube.com/@theBenyPodcastShow/search?query=Trauma+%26+Growth" target="_blank" rel="noopener noreferrer" data-yt-topic="trauma">
+      <a class="topic-card fade-in" href="https://www.youtube.com/results?search_query=%22The+Beny+Podcast+Show%22+Trauma+%26+Growth" target="_blank" rel="noopener noreferrer" data-yt-topic="trauma">
         <div class="topic-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
@@ -2855,7 +3013,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
-      <a class="topic-card fade-in" href="https://www.youtube.com/@theBenyPodcastShow/search?query=Biohacking" target="_blank" rel="noopener noreferrer" data-yt-topic="biohacking">
+      <a class="topic-card fade-in" href="https://www.youtube.com/results?search_query=%22The+Beny+Podcast+Show%22+Biohacking" target="_blank" rel="noopener noreferrer" data-yt-topic="biohacking">
         <div class="topic-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
@@ -2864,7 +3022,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </div>
       </a>
-      <a class="topic-card fade-in" href="https://www.youtube.com/@theBenyPodcastShow/search?query=Parenting+%26+Family" target="_blank" rel="noopener noreferrer" data-yt-topic="parenting">
+      <a class="topic-card fade-in" href="https://www.youtube.com/results?search_query=%22The+Beny+Podcast+Show%22+Parenting+%26+Family" target="_blank" rel="noopener noreferrer" data-yt-topic="parenting">
         <div class="topic-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
@@ -3193,13 +3351,6 @@
       </div>
       <div class="footer-bottom">
         <p class="footer-copyright">© 2026 The Beny Podcast Show. All rights reserved.</p>
-        <p class="footer-legal">
-          <a href="/privacy">Privacy Policy</a>
-          <span aria-hidden="true"> · </span>
-          <a href="/terms">Terms</a>
-          <span aria-hidden="true"> · </span>
-          <a href="mailto:hello@thebenypodcastshow.com">Contact</a>
-        </p>
       </div>
     </div>
   </footer>
