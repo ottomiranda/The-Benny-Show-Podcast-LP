@@ -3,6 +3,7 @@ const CHANNEL_ID = import.meta.env.VITE_YT_CHANNEL_ID as string | undefined;
 const API_BASE = 'https://www.googleapis.com/youtube/v3';
 const CACHE_TTL_MS = 30 * 60 * 1000;
 const SHORT_MAX_DURATION_SECONDS = 60;
+const EPISODE_MIN_DURATION_SECONDS = 600;
 
 export interface ChannelStats {
   title: string;
@@ -181,12 +182,11 @@ export async function getLatestVideo(): Promise<VideoSummary | null> {
   const list = await ytFetch<PlaylistItemsResponse>('playlistItems', {
     part: 'contentDetails',
     playlistId: uploadsPlaylistId,
-    maxResults: '10',
+    maxResults: '50',
   });
   const ids = list.items.map((i) => i.contentDetails.videoId);
   const videos = await fetchVideoDetails(ids);
-  const latest =
-    videos.find((v) => v.durationSeconds > SHORT_MAX_DURATION_SECONDS) ?? videos[0] ?? null;
+  const latest = videos.find((v) => v.durationSeconds >= EPISODE_MIN_DURATION_SECONDS) ?? null;
   if (!latest) return null;
   setCache(cacheKey, latest);
   return latest;
