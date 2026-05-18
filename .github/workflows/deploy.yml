@@ -1,0 +1,54 @@
+name: Deploy to Digital Ocean
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Droplet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          port: ${{ secrets.DO_PORT }}
+          script_stop: true
+          command_timeout: 10m
+          script: |
+            set -e
+            cd /var/www/beny-podcast
+
+            echo "==> Syncing with origin/main"
+            BEFORE=$(git rev-parse HEAD)
+            git fetch origin main
+            git reset --hard origin/main
+            AFTER=$(git rev-parse HEAD)
+            echo "    $BEFORE -> $AFTER"
+
+            if git diff --quiet "$BEFORE" "$AFTER" -- package-lock.json package.json; then
+              echo "==> Dependencies unchanged, skipping npm ci"
+            else
+              echo "==> Dependency changes detected, running npm ci"
+              npm ci
+            fi
+
+            echo "==> Building production bundle"
+            npm run build
+
+            echo "==> Reloading PM2"
+            pm2 reload beny-podcast --update-env
+
+            echo "==> Health check"
+            sleep 2
+            curl -fsS http://127.0.0.1:3000/healthz
+            echo ""
+            echo "==> Deploy complete at commit $AFTER"
